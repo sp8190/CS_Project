@@ -14,21 +14,29 @@ bool FA(bool A, bool B, bool C[], int i) {	// 전가산기 하나. A, B = 더하
 	return A ^ B ^ C[i];	// S return
 }
 
-bool biSum(bool biArr1[], bool biArr2[], bool Sum[], bool S) {	// 병렬 가(감)산기 : 두 2진수로 표현된 숫자끼리 더하는(빼는) 연산을 하는 함수
-																// biArr1 + biArr2 = Sum, S : sign flag (0: +, 1: -)
-	bool Carry[LENGTH + 1] = { 0, };
-	Carry[0] = S;
-	bool Z = false;	// Zero flag
+void biSum(bool biArr1[], bool biArr2[], bool Sum[], bool Op, bool* flag) {	// 병렬 가(감)산기 : 두 2진수로 표현된 숫자끼리 더하는(빼는) 연산을 하는 함수
+																// biArr1 + biArr2 = Sum, Op : operator flag (0: 덧셈, 1: 뺄셈)
+	bool Carry[LENGTH + 1] = { 0, };							// flag = flag Array ( { Z, C, S, V } )
+	Carry[0] = Op;
+	bool Z = false;	// Zero flag == flag[0]
 	for (int i = 0; i < LENGTH; i++) {
-		Sum[i] = FA(biArr1[i], biArr2[i] ^ S, Carry, i);
+		Sum[i] = FA(biArr1[i], biArr2[i] ^ Op, Carry, i);
 		Z = Z | Sum[i];
 	}
-	Z = !Z;
-	return Z;
+	flag[0] = !Z;		// Z 플래그 확인	result[] 모두 확인 후 0이 아닌 값이 존재하면 zero flag off
+	flag[1] = Carry[LENGTH];	// C 플래그 확인   Carry[] 마지막 확인
+	flag[2] = Sum[LENGTH - 1];		// S 플래그 확인	Sum[] 마지막 부호비트
+	flag[3] = Carry[LENGTH] ^ Carry[LENGTH - 1];	// V 플래그 확인	Carry[] 마지막과 그 전의 값 XOR연산
+}
+
+void printFlag(bool* flag) {	// 되도록이면 덧뺄셈 함수의 flag함수를 그대로 쓰려고 했는데 그럴려면 biSum부터해서 전체를 다 뜯어고처야 되더라구요ㅠ
+								// 그래서 자체적으로 하나 더 만들었습니당...
+	cout << "\t" << flag[0] << flag[1] << flag[2] << flag[3] << endl;
 }
 
 bool detobi(int num, bool biArr[]) {	// 10진수를 2진수로 바꾸는 함수
 										// biArr : 이진수로 바꾼 결과를 저장함. 레지스터 역할을 하는 배열이므로 길이가 32.
+	bool flag[4] = { 0, };	// flag Array
 	if (num >= 0) {	// positive num
 		for (int i = 0; i < LENGTH - 1 && num != 0; i++) {
 			biArr[i] = num % 2;
@@ -44,15 +52,9 @@ bool detobi(int num, bool biArr[]) {	// 10진수를 2진수로 바꾸는 함수
 			num /= 2;
 		}
 		bool one[LENGTH] = { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };	// 1 ----> 처음에 헷갈려서 {0, 0, ..., 1 } 이라고 함ㅠ 주의해야겠당
-		biSum(biArr, one, biArr, 0);	// 비트 반전 후 1을 더함
+		biSum(biArr, one, biArr, 0, flag);	// 비트 반전 후 1을 더함
 	}
-
-	bool Z = true;		// zero flag
-	for (int i = 0; i < LENGTH; i++) {
-		if (biArr[i] != 0)
-			Z = false;
-	}
-	return Z;	// 리턴값 : 0인지 아닌지
+	return flag[0];	// 리턴값 : Z flag (0인지 아닌지)
 }
 
 int bitode(bool biArr[]) {	// 2진수를 10진수로 바꾸는 함수
@@ -119,7 +121,7 @@ void devision(bool Q[], bool M[]) {
 	bool tempA[LENGTH];		// 연산 전 A값을 저장하는 배열
 
 	// Print initial state
-	cout << "A                                 \tQ                                \tM" << endl;
+	cout << "A                                 \tQ                                \tM\tZCSV" << endl;
 	cout << "=========================================================================================" << endl;
 	printAQ(A, Q);
 	for (int i = LENGTH - 1; i >= 0; i--)
@@ -136,17 +138,18 @@ void devision(bool Q[], bool M[]) {
 			tempA[i] = A[i];
 
 		// Cycle 2. A-M or A+M
-		bool Z = false;		//	zero flag
+		bool flag[4] = { 0, };		//	zero flag
 		if (A[LENGTH - 1] == M[LENGTH - 1]) {	// A와 M의 부호 동일?
-			Z = biSum(A, M, A, 1);	// A <- A-M
+			biSum(A, M, A, 1, flag);	// A <- A-M
 			printAQ(A, Q);
-			cout << "뺄셈" << endl;
+			cout << "뺄셈";
 		}
 		else {
-			Z = biSum(A, M, A, 0);	// A <- A+M
+			biSum(A, M, A, 0, flag);	// A <- A+M
 			printAQ(A, Q);
-			cout << "덧셈" << endl;
+			cout << "덧셈";
 		}
+		printFlag(flag);
 
 		// Cycle 3. Caculation determination
 		if (A[LENGTH - 1] == tempA[LENGTH - 1]) {	// caculation success
@@ -155,7 +158,7 @@ void devision(bool Q[], bool M[]) {
 			cout << "Q0 = 1" << endl;
 		}
 		else {
-			if (Z && n - 1 <= oneIdx) {
+			if (flag[0] && n - 1 <= oneIdx) {
 				Q[0] = 1;
 				printAQ(A, Q);
 				cout << "Q0 = 1" << endl;
@@ -178,7 +181,10 @@ void devision(bool Q[], bool M[]) {
 		for (int i = 0; i < LENGTH; i++)	// 보수 구해야하나? 아님 바로 부호만?
 			Q[i] = Q[i] ^ 1;	// 비트 반전
 		bool one[LENGTH] = { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };	// 1
-		biSum(Q, one, Q, 0);	// 비트 반전 후 1을 더함
+		bool flag[4] = { 0, };
+		biSum(Q, one, Q, 0, flag);	// 비트 반전 후 1을 더함
+		cout << "몫의 보수를 취하고 난 후 Flag (Z, S, C, V) :";
+		printFlag(flag);
 	}
 	int quotient = bitode(Q);
 	cout << "몫 : ";
@@ -241,7 +247,8 @@ void add_sub(bool Q[], bool M[], bool Add0_Sub1) { // A ,B ,덧셈뺄셈 여부(
 			M[i] = M[i] ^ 1;	// 비트 반전
 		}
 		bool one[LENGTH] = { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-		biSum(M, one, M, 0);	// 비트 반전 후 1을 더함
+		bool flag[4] = { 0, };
+		biSum(M, one, M, 0, flag);	// 비트 반전 후 1을 더함
 	}
 
 
