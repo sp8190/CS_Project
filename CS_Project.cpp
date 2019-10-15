@@ -828,6 +828,7 @@ int main() {
 		returnarr(d, 32, num1_arr);
 		returnarr(v, 32, num2_arr);
 		multiply();
+		num_1 = 0; num_1 = 0;
 
 
 		/* 나눗셈 */
