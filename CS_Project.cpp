@@ -792,7 +792,10 @@ int main() {
 		cout << "B :" << v << endl;
 		cout << endl;
 
-
+		for (int i = 0; i <= LENGTH - 1; i++) {
+			Q[i] = 0;
+			M[i] = 0;
+		}
 		detobi(d, Q);	// 입력받은 10진수를 2진수로 바꿈
 		bool Z = detobi(v, M);	// v(=M)가 0인지 아닌지 검사
 
@@ -837,12 +840,11 @@ int main() {
 
 		/* 나눗셈 */
 		cout << "나눗셈" << endl;
-		if (Z) {	// 0으로 나눌 때
+		if (v==0) {	// 0으로 나눌 때
 			devisionZero();
-			return 0;
+		}else{
+			devision(Q, M);
 		}
-		devision(Q, M);
-
 		/* 초기화 */
 		cout << endl;
 		for (int i = 0; i <= LENGTH - 1; i++) {
