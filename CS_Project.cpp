@@ -2,6 +2,18 @@
 #include <iostream>
 using namespace std;
 #define LENGTH 32
+// 전역변수
+int num1_arr[32], num2_arr[32], num3_arr[32] = { 0 }, A[32] = { 0 };
+int num_1 = 0, num_2 = 0, checkzero = 0;
+int Mc = 0, Mv = 0, Ms = 0;
+int* returnarr(int nums, int size, int arr[]);
+void returnA(int nums, int size);
+void checkVM(int arr1[], int arr2[]);
+void reverse(int arr[], int start, int end);
+void shiftRight(int arr[], int d, int n);
+void shiftLeft(int arr[], int d, int n);
+void multiply();
+//
 
 /*  주의!
 	이 프로그램(나눗셈 파트)에서 등장하는 bool 타입 배열은
@@ -339,18 +351,6 @@ void add_sub(bool Q[], bool M[], bool Add0_Sub1) { // A ,B ,덧셈뺄셈 여부(
 }
 
 // 곱셈부분
-// 전역변수
-int num1_arr[32], num2_arr[32], num3_arr[32] = { 0 }, A[32] = { 0 };
-int num_1 = 0, num_2 = 0, checkzero = 0;
-int Mc = 0, Mv = 0, Ms = 0;
-int* returnarr(int nums, int size, int arr[]);
-void returnA(int nums, int size);
-void checkVM(int arr1[], int arr2[]);
-void reverse(int arr[], int start, int end);
-void shiftRight(int arr[], int d, int n);
-void shiftLeft(int arr[], int d, int n);
-void multiply();
-//
 int* returnarr(int nums, int size, int arr[]) {
 	int aaa = size;
 	int check = 0;
