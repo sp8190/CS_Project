@@ -825,11 +825,15 @@ int main() {
 
 		/* 곱셈*/
 		num_1 = d; num_2 = v;
+		for (int i = 0; i < 32; i++) {
+		num1_arr[i] = { 0 };
+		num2_arr[i] = { 0 };
+		num3_arr[i] = { 0 };
+		A[i] = { 0 };
+		}
 		returnarr(d, 32, num1_arr);
 		returnarr(v, 32, num2_arr);
 		multiply();
-		num_1 = 0; num_1 = 0;
-
 
 		/* 나눗셈 */
 		cout << "나눗셈" << endl;
